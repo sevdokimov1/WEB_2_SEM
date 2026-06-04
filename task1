@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Учебная практика - Задание 1</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; background: #f5f5f5; }
+        .container { max-width: 1000px; margin: 0 auto; background: white; padding: 30px; border-radius: 8px; }
+        h1 { color: #333; border-bottom: 2px solid #007bff; padding-bottom: 10px; }
+        h2 { color: #555; margin-top: 30px; }
+        .info { background: #e7f3ff; padding: 15px; border-left: 4px solid #007bff; margin: 20px 0; }
+        .screenshot { margin: 20px 0; text-align: center; }
+        .screenshot img { max-width: 100%; border: 1px solid #ddd; border-radius: 4px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Учебная практика по сетевым технологиям</h1>
+        
+        <div class="info">
+            <strong>Студент:</strong> u82276<br>
+            <strong>Задание:</strong> Работа с учебным сервером kubsu-dev.ru
+        </div>
+
+        <h2>1. Проверка доступности (ping)</h2>
+        <div class="screenshot">
+            <p><em>Скриншот результата ping kubsu.ru</em></p>
+        </div>
+
+        <h2>2. DNS-записи (nslookup)</h2>
+        <div class="screenshot">
+            <p><em>Скриншот результата nslookup</em></p>
+        </div>
+
+        <h2>3. Информация о доменах (whois)</h2>
+        <div class="screenshot">
+            <p><em>Скриншот результата whois</em></p>
+        </div>
+    </div>
+</body>
+</html>
