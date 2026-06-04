@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Лабораторная работа: HTTP-запросы</title>
+    <meta charset="utf-8">
+    <style>
+        body { font-family: Arial; max-width: 1200px; margin: 0 auto; padding: 20px; }
+        .screenshot { margin: 30px 0; border: 1px solid #e7c6c6; padding: 10px; }
+        img { max-width: 100%; border: 1px solid #ccc; }
+        h2 { background: #ccb9b9; padding: 10px; }
+    </style>
+</head>
+<body>
+    <h1>HTTP-запросы через telnet</h1>
+    
+    <div class="screenshot">
+        <h2>1. GET / HTTP/1.0 (главная страница)</h2>
+        <img src="1.jpg" alt="Скриншот 1">
+    </div>
+    
+    <div class="screenshot">
+        <h2>2. GET /about.html HTTP/1.1 (внутренняя страница)</h2>
+        <img src="2.jpg" alt="Скриншот 2">
+    </div>
+    
+    <div class="screenshot">
+        <h2>3. HEAD /file.tar.gz (размер файла: 11335 байт)</h2>
+        <img src="3.jpg" alt="Скриншот 3">
+    </div>
+    
+    <div class="screenshot">
+        <h2>4. HEAD /image.png (медиатип: image/png)</h2>
+        <img src="4.jpg" alt="Скриншот 4">
+    </div>
+    
+    <div class="screenshot">
+        <h2>5. POST /index.php (отправка комментария)</h2>
+        <img src="5.jpg" alt="Скриншот 5">
+    </div>
+    
+    <div class="screenshot">
+        <h2>6. GET с Range (первые 100 байт file.tar.gz)</h2>
+        <img src="6.jpg" alt="Скриншот 6">
+    </div>
+    
+    <div class="screenshot">
+        <h2>7. HEAD /index.php (кодировка: UTF-8)</h2>
+        <img src="7.jpg" alt="Скриншот 7">
+    </div>
+</body>
+</html>
